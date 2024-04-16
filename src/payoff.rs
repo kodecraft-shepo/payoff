@@ -67,14 +67,16 @@ fn calculate_total_payoff(option_data: &OptionData, price: f64) -> f64 {
 
 pub fn calculate_payoff(option_data_set: OptionDataSet, spots: f64) -> Payoff {
     let mut payoff = Payoff::default();
-    let x = Array1::range(0.0, spots * 2.0, 100.0).to_vec();
+    let std_dev = 0.1;
+    let upper_bound = spots * (1.0 + std_dev);
+    let lower_bound = spots * (1.0 - std_dev);
+    let x = Array1::linspace(lower_bound, upper_bound, 400).to_vec();
     let y = x.iter().map(|&price| {
         let payoff: f64 = option_data_set.options.iter().map(|option_data| {
             format_currency(calculate_total_payoff(option_data, price), 2).parse::<f64>().unwrap()
         }).sum();
         payoff
     }).collect();
-
     payoff.x = x;
     payoff.y = y;
     
